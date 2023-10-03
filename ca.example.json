@@ -1,0 +1,11 @@
+{
+  "slot": "9a",
+  "algorithm": "EC256",
+  "subject": {
+    "C": [ "GB" ],
+    "O": [ "ACME Limited" ],
+    "CN": "Root EC1"
+  },
+  "validity": "87600h",
+  "crl": [ "http://example.org/ec1.crl" ]
+}
