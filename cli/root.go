@@ -11,14 +11,18 @@ import (
 	"golang.org/x/term"
 
 	"github.com/jamescun/yubca/config"
+	"github.com/jamescun/yubca/db"
 )
 
 var (
 	configFile string
+	dbFile     string
 	keyID      int
 )
 
 var key *piv.YubiKey
+
+var issued db.DB
 
 var root = &cobra.Command{
 	Use:   "yubca command",
@@ -43,12 +47,20 @@ var root = &cobra.Command{
 			return fmt.Errorf("could not connect to key: %w", err)
 		}
 
+		if dbFile != "" {
+			issued, err = db.NewJSON(dbFile)
+			if err != nil {
+				return fmt.Errorf("could not create json issuance database")
+			}
+		}
+
 		return nil
 	},
 }
 
 func init() {
 	root.PersistentFlags().StringVar(&configFile, "config", "ca.json", "path to certificate authority json configuration")
+	root.PersistentFlags().StringVar(&dbFile, "db", "", "path to json database of issued certificates")
 	root.PersistentFlags().IntVar(&keyID, "key-id", 0, "id of yubikey to operate certificate authority from")
 
 	root.AddCommand(initCA)

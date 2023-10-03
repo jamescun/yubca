@@ -62,3 +62,5 @@ yubca sign --config ca.json --csr csr.pem --server
 This will return the PEM-encoded certificate in response to the CSR signed by your Certificate Authority.
 
 You may also include `--ca` to sign an intermediate Certificate Authority, or `--server` or `--client` to enable Server or Client certificate usage.
+
+The YubiKey will not keep a record of the certificates it has issued, in particular, the serial numbers of the certificates it has issued. This is important for revocation if needed. To maintain a database of issued certificates, use the `--db issuance.json` command line flag, to append a JSON record for every certificate issued.

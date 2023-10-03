@@ -28,6 +28,8 @@ var signCSR = &cobra.Command{
 	Short: "sign a certificate signing request",
 
 	RunE: func(cmd *cobra.Command, args []string) error {
+		ctx := cmd.Context()
+
 		cfg, err := readConfig()
 		if err != nil {
 			return fmt.Errorf("could not read config: %w", err)
@@ -114,6 +116,13 @@ var signCSR = &cobra.Command{
 			Type:  "CERTIFICATE",
 			Bytes: certBytes,
 		})
+
+		if issued != nil {
+			err = issued.AppendCertificate(ctx, cert)
+			if err != nil {
+				return fmt.Errorf("could not append certificate to issuance database: %w", err)
+			}
+		}
 
 		return nil
 	},
