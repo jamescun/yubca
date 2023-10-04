@@ -21,6 +21,8 @@ var (
 func main() {
 	ctx := context.Background()
 
+	cli.SetVersion(Version, Revision)
+
 	if err := cli.Root().ExecuteContext(ctx); err != nil {
 		var ve *config.ValidationError
 		if errors.As(err, &ve) {
