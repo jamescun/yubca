@@ -21,6 +21,7 @@ var (
 	serverAuth  bool
 	clientAuth  bool
 	validityStr string
+	outputPath  string
 )
 
 var signCSR = &cobra.Command{
@@ -114,10 +115,24 @@ var signCSR = &cobra.Command{
 
 		cert.Raw = certBytes
 
-		pem.Encode(os.Stdout, &pem.Block{
+		out := os.Stdout
+		if outputPath != "" {
+			file, err := os.OpenFile(outputPath, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0o644)
+			if err != nil {
+				return fmt.Errorf("could not create certificate path: %w", err)
+			}
+			defer file.Close()
+
+			out = file
+		}
+
+		err = pem.Encode(out, &pem.Block{
 			Type:  "CERTIFICATE",
 			Bytes: certBytes,
 		})
+		if err != nil {
+			return fmt.Errorf("could not PEM-encode certificate: %w", err)
+		}
 
 		if issued != nil {
 			err = issued.AppendCertificate(ctx, cert)
@@ -136,6 +151,7 @@ func init() {
 	signCSR.Flags().BoolVar(&serverAuth, "server", false, "enable server authentication usage for key")
 	signCSR.Flags().BoolVar(&clientAuth, "client", false, "enable client authentication for key")
 	signCSR.Flags().StringVar(&validityStr, "validity", "8766h", "maximum period before certificate expires")
+	signCSR.Flags().StringVar(&outputPath, "output", "", "write certificate to a file instead of stdout")
 }
 
 func readCSR(path string) (*x509.CertificateRequest, error) {
