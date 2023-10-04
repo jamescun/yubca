@@ -12,6 +12,8 @@ go install github.com/jamescun/yubca@latest
 
 ## Usage
 
+See the [Guides](docs/guides/) directory for more full examples and more use cases.
+
 To get started, you need to create a configuration file that specifies the shape of your Certificate Authority. This includes it's distinguished name and future certificate revocation URLs.
 
 In this example, we'll create `ca.json` with some dummy values. Feel free to update these to your use case.
