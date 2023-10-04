@@ -2,7 +2,9 @@ package db
 
 import (
 	"context"
+	"crypto/sha256"
 	"crypto/x509"
+	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
@@ -14,9 +16,12 @@ import (
 // JSONRecord is an individual certificate that has been signed by the
 // Certificate Authority.
 type JSONRecord struct {
-	Serial    string    `json:"serial"`
-	NotBefore time.Time `json:"notBefore"`
-	NotAfter  time.Time `json:"notAfter"`
+	Serial      string    `json:"serial"`
+	Fingerprint string    `json:"fingerprint"`
+	CommonName  string    `json:"commonName"`
+	NotBefore   time.Time `json:"notBefore"`
+	NotAfter    time.Time `json:"notAfter"`
+	DNSNames    []string  `json:"dnsNames,omitempty"`
 }
 
 // JSON is a DB implementation backed by an append-only newline delimited JSON
@@ -35,9 +40,12 @@ func (j *JSON) AppendCertificate(ctx context.Context, cert *x509.Certificate) er
 	defer j.write.Unlock()
 
 	record := &JSONRecord{
-		Serial:    hex.EncodeToString(cert.SerialNumber.Bytes()),
-		NotBefore: cert.NotBefore,
-		NotAfter:  cert.NotAfter,
+		Serial:      hex.EncodeToString(cert.SerialNumber.Bytes()),
+		Fingerprint: sha256fingerprint(cert),
+		CommonName:  cert.Subject.CommonName,
+		NotBefore:   cert.NotBefore,
+		NotAfter:    cert.NotAfter,
+		DNSNames:    cert.DNSNames,
 	}
 
 	file, err := os.OpenFile(j.path, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0o644)
@@ -52,4 +60,9 @@ func (j *JSON) AppendCertificate(ctx context.Context, cert *x509.Certificate) er
 	}
 
 	return nil
+}
+
+func sha256fingerprint(cert *x509.Certificate) string {
+	sum := sha256.Sum256(cert.Raw)
+	return "SHA256:" + base64.StdEncoding.EncodeToString(sum[:])
 }

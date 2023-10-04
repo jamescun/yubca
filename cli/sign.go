@@ -112,6 +112,8 @@ var signCSR = &cobra.Command{
 			return fmt.Errorf("could not sign certificate: %w", err)
 		}
 
+		cert.Raw = certBytes
+
 		pem.Encode(os.Stdout, &pem.Block{
 			Type:  "CERTIFICATE",
 			Bytes: certBytes,
