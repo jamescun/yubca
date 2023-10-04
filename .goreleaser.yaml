@@ -1,0 +1,35 @@
+project_name: yubca
+
+before:
+  hooks:
+    - go mod tidy
+
+gomod:
+  proxy: true
+
+builds:
+- env:
+    - CGO_ENABLED=1
+  goos:
+    - darwin
+    - windows
+  goarch:
+    - amd64
+    - arm64
+  flags:
+    - -trimpath
+  ldflags:
+    - -s -w -X main.Version={{.Version}} -X main.Revision={{.Commit}}
+
+brews:
+  - homepage: https://github.com/jamescun/yubca
+    description: Create and Operate a Certificate Authority from a YubiKey.
+    license: MIT
+    folder: Formula
+    commit_author:
+      name: James Cunningham
+      email: git@jamescun.com
+    repository:
+      owner: jamescun
+      name: homebrew-formulas
+      token: "{{ .Env.TAP_GITHUB_TOKEN }}"
