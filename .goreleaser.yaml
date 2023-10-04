@@ -32,4 +32,4 @@ brews:
     repository:
       owner: jamescun
       name: homebrew-formulas
-      token: "{{ .Env.TAP_GITHUB_TOKEN }}"
+      token: "{{ .Env.GITHUB_TOKEN }}"
